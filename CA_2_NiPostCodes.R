@@ -1,4 +1,6 @@
-
+# CA 2 Section-1
+# Download the Ni Postcode dataset and type
+#getwd() which will result the current working directory and then move the NIPostcode.csv into working directory
 # Loading the dataset
 ni_postcode_data <- read.csv("NIPostcodes.csv", header = FALSE)
 
