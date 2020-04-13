@@ -1,5 +1,9 @@
 # TO run this code NiPostCode data frame is needed so first run the r code from the link
 # LINK: https://github.com/naveenjaladi/Data_Science/blob/master/CA_2_NiPostCodes.R
+# Donot download village list data prior to execution of step 1 as it read all files csv files present in the 
+# Folder and copy the village list data to the dataset on step G.
+# Before going to step A NI Crime data should be copied to the present working directory folder
+# It can be obtained by command getwd()
 
 # CA-2 ALL NI Crime Data
 # Selecting the Folder containing Ni Crime Data as the working Directory
