@@ -194,9 +194,9 @@ barplot(height = prop.table(table(file_data$RegionName)),
 # for the ward to vote in favour of remaining in the EU (a lower Proportion value).
 
 # Creates the plot
-install.packages("ggplot2")
+#install.packages("ggplot2")
 # Colour each chart point witha colour palette
-install.packages("viridis")
+#install.packages("viridis")
 library(ggplot2)
 library(viridis)
 
@@ -226,3 +226,89 @@ par(mfrow = c(1, 2))
 
 plot(x = file_data$NoQuals, y = file_data$AdultMeanAge, ylab = "Adult Mean age", xlab = "No qualifications")
 plot(x = file_data$L4Quals_plus, y = file_data$AdultMeanAge, ylab = "Adult mean age", xlab = "L4 qualifications+")
+
+
+# Examine data in more details
+variables_of_interest <- c("AdultMeanAge", "Owned", "NoQuals", "White", "L4Quals_plus", "Unemp", "HigherOccup", "Deprived", "Proportion")
+pairs(file_data[variables_of_interest])
+
+#Examine data in more detail
+# This chart shows "NoQuals" on X-axis and "AdultMeanAge" on the y-axis
+# and proportion is assigned a color
+plot <- ggplot(file_data, aes(x= NoQuals, y= AdultMeanAge, color = Proportion))
+plot <- plot + stat_smooth(method = "lm", col = "darkgrey", se = FALSE)
+plot <- plot + geom_point()
+print(plot)
+
+# Interactions with the corelations
+# Using the corplot() function
+# create a matrix of higher corelations
+opar <- par(no.readonly = TRUE)
+#install.packages("corrplot")
+library(corrplot)
+# tl.col = text color
+# tl.cex = text size
+corrplot(corr = cor(numerical_data), tl.col = "Black", tl.cex = 0.9)
+
+#  SPlit up the variables into meaning full variables
+# 2 groups of age - below and above age 45
+# 2 Different groups of ethinicity - white and non-white
+# 2 groups of education (higer and lower level of education)
+
+# So age below 45
+attach(file_data)
+file_data$age_18to44 <- (Age_18to19 + Age_20to24 + Age_25to29 + Age_30to44)
+
+# Age above 45
+file_data$age_45_above <- (Age_45to59 + Age_60to64 + Age_65to74 + Age_75to84 + Age_85to89 + Age_90plus)
+# Data already exists for white voters
+# Create non white variable 
+file_data$non_white <- (Black + Asian + Pakistani + Indian)
+# Create two education levels
+file_data$high_education_level <- L4Quals_plus
+file_data$low_education_level <- NoQuals
+detach(file_data)
+
+# Next step
+# Remove all other data
+# First extract out column name
+col_names <- colnames(file_data)
+col_names
+# Now build a vector that contains TRUE for each element
+# Within it.
+varibles_list <- !logical(length(col_names))
+varibles_list
+?setNames
+varibles_list <- setNames(varibles_list, col_names)
+varibles_list
+
+# we wait to remove cols with word "Age" in them -except for "age_18to44" and "age_45_above"
+?grepl
+# We use sapply() and grepl() to search age
+age_variables <- sapply(col_names, function(x) grepl("Age", x))
+age_variables
+varibles_list[age_variables] <- FALSE
+varibles_list
+# This cause an issue - I want to keep "Age_18to44" and "Age_45-above"
+# Do this manually
+varibles_list["age_18to44"] <- TRUE
+varibles_list["age_45_above"] <- TRUE
+varibles_list["AdultMeanAge"] <- TRUE
+varibles_list
+# Finally i want to remove other comined earlier
+varibles_list["Black"] <- FALSE
+varibles_list["Asian"] <- FALSE
+varibles_list["Indian"] <- FALSE
+varibles_list["Pakistani"] <- FALSE
+
+varibles_list["NoQuals"] <- FALSE
+varibles_list["L4Quals_plus"] <- FALSE
+varibles_list
+
+# THis vector varible list what i'd like to keep
+# so i'll use it for new data frame
+adjusted_data <- file_data[, varibles_list]
+nrow(adjusted_data)
+
+# Write adjusted data to csv file
+write.csv(adjusted_data, file = "data_brexit_referendum_adjusted.csv")
